@@ -17,18 +17,18 @@ import {
   TuiDataListWrapperModule,
 } from '@taiga-ui/kit';
 import { TuiLetModule } from '@taiga-ui/cdk';
-import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
 import { AppComponent } from './app.component';
 import { TranslateApiService } from './services/translate-api.service';
-import { TranslateApiMockService } from './services/translate-api-mock.service';
+import { HttpErrorInterceptor } from './interceptors/http-error.interceptor';
 import { TranslatorComponent } from './components/translator/translator.component';
+import { DeepTranslateApiService } from './services/deep-translate/deep-translate-api.service';
 import { TranslatorSourceComponent } from './components/translator/translator-source/translator-source.component';
 import { TranslatorTargetComponent } from './components/translator/translator-target/translator-target.component';
-import { HttpErrorInterceptor } from './interceptors/http-error.interceptor';
 
 
 @NgModule({
@@ -51,6 +51,7 @@ import { HttpErrorInterceptor } from './interceptors/http-error.interceptor';
     TuiSelectModule,
     TuiIslandModule,
     TuiTextAreaModule,
+    HttpClientModule,
     TuiDataListModule,
     TuiLineClampModule,
     ReactiveFormsModule,
@@ -61,7 +62,7 @@ import { HttpErrorInterceptor } from './interceptors/http-error.interceptor';
   bootstrap: [AppComponent],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: HttpErrorInterceptor, multi: true },
-    { provide: TranslateApiService, useClass: TranslateApiMockService },
+    { provide: TranslateApiService, useClass: DeepTranslateApiService },
   ],
 })
 export class AppModule {
