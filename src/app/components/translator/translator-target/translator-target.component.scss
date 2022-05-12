@@ -1,0 +1,30 @@
+@import '~node_modules/@taiga-ui/core/styles/taiga-ui-local';
+
+.translator-target {
+  &__wrapper {
+    position: relative;
+    height: 200px;
+
+    tui-island {
+      height: 100%;
+      box-sizing: border-box;
+    }
+  }
+  &__icons {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    display: flex;
+    justify-content: flex-end;
+    pointer-events: none;
+    padding: 1rem 0.75rem;
+
+    :host[data-size='m'] & {
+      padding: 0.75rem;
+    }
+  }
+  &__icon {
+    @include icon-button();
+    pointer-events: auto;
+  }
+}

@@ -22,14 +22,19 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
 import { AppComponent } from './app.component';
+import { TranslateApiService } from './services/translate-api.service';
+import { TranslateApiMockService } from './services/translate-api-mock.service';
 import { TranslatorComponent } from './components/translator/translator.component';
-import { TranslatorFormComponent } from './components/translator-form/translator-form.component';
+import { TranslatorSourceComponent } from './components/translator/translator-source/translator-source.component';
+import { TranslatorTargetComponent } from './components/translator/translator-target/translator-target.component';
+
 
 @NgModule({
   declarations: [
     AppComponent,
     TranslatorComponent,
-    TranslatorFormComponent,
+    TranslatorSourceComponent,
+    TranslatorTargetComponent,
   ],
   imports: [
     TuiLetModule,
@@ -50,7 +55,10 @@ import { TranslatorFormComponent } from './components/translator-form/translator
     TuiDataListWrapperModule,
     TuiTextfieldControllerModule,
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  providers: [
+    { provide: TranslateApiService, useClass: TranslateApiMockService },
+  ],
 })
 export class AppModule {
 }

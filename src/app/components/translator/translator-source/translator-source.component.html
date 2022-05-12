@@ -1,0 +1,40 @@
+<form [formGroup]="form" class="translator-source__wrapper">
+  <div class="translator-source__text-area">
+    <tui-text-area
+      [tuiTextfieldCleaner]="true"
+      formControlName="source"
+    >
+      Type a text
+    </tui-text-area>
+    <div class="translator-source__icons">
+      <tui-svg
+        (click)="paste()"
+        tuiHint="paste from clipboard"
+        src="tuiIconFile"
+        class="translator-source__icon"
+      ></tui-svg>
+    </div>
+  </div>
+  <tui-select
+    class="tui-space_vertical-5"
+    formControlName="language"
+    *tuiLet="languages$ | async as languages"
+    [valueContent]="languages ? stringify(languages) : loading"
+  >
+    language
+    <ng-template tuiDataList>
+      <tui-data-list *ngIf="languages else loading">
+        <button
+          *ngFor="let language of languages"
+          tuiOption
+          [value]="language.code"
+        >
+          {{language.name}}
+        </button>
+      </tui-data-list>
+    </ng-template>
+    <ng-template #loading>
+      <tui-loader class="tui-space_vertical-3 loader"></tui-loader>
+    </ng-template>
+  </tui-select>
+</form>

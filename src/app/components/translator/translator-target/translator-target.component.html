@@ -1,0 +1,14 @@
+<div class="translator-target__wrapper">
+  <tui-island>
+    <h3 class="tui-island__category">Translation</h3>
+    <p class="tui-island__paragraph">{{ translation }}</p>
+  </tui-island>
+  <div class="translator-target__icons">
+    <tui-svg
+      (click)="copy()"
+      tuiHint="copy to clipboard"
+      src="tuiIconCopy"
+      class="translator-target__icon"
+    ></tui-svg>
+  </div>
+</div>
