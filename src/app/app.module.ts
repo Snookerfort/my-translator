@@ -17,8 +17,8 @@ import {
   TuiDataListWrapperModule,
 } from '@taiga-ui/kit';
 import { TuiLetModule } from '@taiga-ui/cdk';
-import { ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
 import { AppComponent } from './app.component';
@@ -37,6 +37,7 @@ import { TranslatorTargetComponent } from './components/translator/translator-ta
     TranslatorTargetComponent,
   ],
   imports: [
+    FormsModule,
     TuiLetModule,
     TuiSvgModule,
     BrowserModule,

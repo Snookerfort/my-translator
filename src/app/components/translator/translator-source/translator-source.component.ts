@@ -1,11 +1,13 @@
-import { FormControl, FormGroup } from '@angular/forms';
+import { takeUntil } from 'rxjs';
+import { FormControl, FormGroup, NgControl } from '@angular/forms';
 import { TuiAlertService, TuiNotification } from '@taiga-ui/core';
-import { TuiContextWithImplicit, tuiPure, TuiStringHandler } from '@taiga-ui/cdk';
-import { ChangeDetectionStrategy, Component, Inject, OnInit } from '@angular/core';
+import { AbstractTuiControl, TuiContextWithImplicit, tuiPure, TuiStringHandler } from '@taiga-ui/cdk';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, Optional, Self } from '@angular/core';
 
 import { NAVIGATOR } from '../../../tokens/navigator';
 import { ILanguage } from '../../../interfaces/language.interface';
 import { TranslateApiService } from '../../../services/translate-api.service';
+import { ITranslatorSourceForm } from '../interfaces/translator-source-form.interface';
 
 
 @Component({
@@ -14,22 +16,44 @@ import { TranslateApiService } from '../../../services/translate-api.service';
   styleUrls: ['./translator-source.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TranslatorSourceComponent implements OnInit {
+export class TranslatorSourceComponent extends AbstractTuiControl<ITranslatorSourceForm> {
 
+  public focused = true;
   public languages$ = this.translateApiService.listLanguages();
   public form = new FormGroup({
     source: new FormControl(null),
     language: new FormControl(null),
-  })
+  });
 
   constructor(
+    @Self()
+    @Optional()
+    @Inject(NgControl)
+      control: NgControl,
+    changeDetectorRef: ChangeDetectorRef,
     @Inject(NAVIGATOR)
     private readonly navigator: Navigator,
     private readonly alertService: TuiAlertService,
     private readonly translateApiService: TranslateApiService,
-  ) { }
+  ) {
+    super(control, changeDetectorRef);
+  }
 
-  ngOnInit(): void {
+  override ngOnInit() {
+    super.ngOnInit();
+    this.form.valueChanges.pipe(
+      takeUntil(this.destroy$),
+    ).subscribe(changes => this.updateValue(changes));
+  }
+
+  public override writeValue(value: ITranslatorSourceForm | null) {
+    super.writeValue(value);
+    if (value?.language) {
+      this.form.get('language')?.setValue(value.language, {emitEvent: false});
+    }
+    if (value?.source) {
+      this.form.get('source')?.setValue(value.source, {emitEvent: false});
+    }
   }
 
   @tuiPure
@@ -50,6 +74,13 @@ export class TranslatorSourceComponent implements OnInit {
     } catch (e) {
       this.alertService.open('Text hasn\'t been pasted!', {status: TuiNotification.Error}).subscribe();
     }
+  }
+
+  protected getFallbackValue(): ITranslatorSourceForm {
+    return {
+      source: '',
+      language: 'ru'
+    };
   }
 
 }
