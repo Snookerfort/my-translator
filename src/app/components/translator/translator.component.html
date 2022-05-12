@@ -4,9 +4,11 @@
       <mt-translator-source [(ngModel)]="sourceForm"></mt-translator-source>
     </div>
     <div class="tui-col_md-12 tui-col_lg-6 tui-space_vertical-5">
-      <mt-translator-target></mt-translator-target>
+      <mt-translator-target [translation]="translation"></mt-translator-target>
       <div class="translator-btn">
         <button
+          (click)="translate()"
+          [showLoader]="loading"
           [disabled]="!sourceFormIsValid"
           class="tui-space_vertical-5"
           tuiButton type="button"

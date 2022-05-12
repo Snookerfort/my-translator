@@ -1,5 +1,5 @@
 import { TuiAlertService, TuiNotification } from '@taiga-ui/core';
-import { ChangeDetectionStrategy, Component, Inject, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Inject, Input, OnInit } from '@angular/core';
 
 import { NAVIGATOR } from '../../../tokens/navigator';
 
@@ -12,7 +12,8 @@ import { NAVIGATOR } from '../../../tokens/navigator';
 })
 export class TranslatorTargetComponent implements OnInit {
 
-  public translation = 'Some text';
+  @Input()
+  public translation = '';
 
   constructor(
     private readonly alertService: TuiAlertService,
