@@ -1,25 +1,4 @@
-@import '~node_modules/@taiga-ui/core/styles/taiga-ui-local';
-
-.t-icons {
-  position: absolute;
-  bottom: 0;
-  right: 1.5rem;
-  display: flex;
-  justify-content: flex-end;
-  pointer-events: none;
-  padding: 1rem 0.75rem;
-
-  :host[data-size='m'] & {
-    padding: 0.75rem;
-  }
-}
-
-.t-cleaner {
-  @include icon-button();
-  pointer-events: auto;
-}
-
-.flex-reverse {
+.translator-btn {
   display: flex;
   flex-direction: row-reverse;
 }

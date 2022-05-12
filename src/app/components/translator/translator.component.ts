@@ -11,7 +11,11 @@ import { ITranslatorSourceForm } from './interfaces/translator-source-form.inter
 })
 export class TranslatorComponent implements OnInit {
 
-  public source: ITranslatorSourceForm | null = null;
+  public sourceForm: ITranslatorSourceForm | null = null;
+
+  public get sourceFormIsValid(): boolean {
+    return !!this.sourceForm?.language && !!this.sourceForm.source;
+  }
 
   constructor() { }
 

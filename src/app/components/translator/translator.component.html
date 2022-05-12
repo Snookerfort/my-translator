@@ -1,12 +1,19 @@
 <div class="tui-container tui-container_adaptive">
   <div class="tui-row tui-row_adaptive">
     <div class="tui-col_md-12 tui-col_lg-6 tui-space_vertical-5">
-      <mt-translator-source [(ngModel)]="source"></mt-translator-source>
+      <mt-translator-source [(ngModel)]="sourceForm"></mt-translator-source>
     </div>
     <div class="tui-col_md-12 tui-col_lg-6 tui-space_vertical-5">
       <mt-translator-target></mt-translator-target>
-      <div style="display: flex; flex-direction: row-reverse">
-        <button class="tui-space_vertical-5" tuiButton type="button" appearance="outline">Translate</button>
+      <div class="translator-btn">
+        <button
+          [disabled]="!sourceFormIsValid"
+          class="tui-space_vertical-5"
+          tuiButton type="button"
+          appearance="outline"
+        >
+          Translate
+        </button>
       </div>
     </div>
   </div>
