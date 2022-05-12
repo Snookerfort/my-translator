@@ -1,8 +1,7 @@
 import { map, Observable, of } from 'rxjs';
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpContext, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
-import { HTTP_RETRY_CONTEXT } from '../../tokens/http-retry';
 import { TranslateApiService } from '../translate-api.service';
 import { ILanguage } from '../../interfaces/language.interface';
 import { ITranslation } from '../../interfaces/translation.interface';
@@ -11,7 +10,7 @@ import { IDeepTranslateLanguagesResponse } from './interfaces/deep-translate-lan
 
 /** https://rapidapi.com/gatzuma/api/deep-translate1/ */
 export class DEEP_TRANSLATE_API_ROUTES {
-  public static readonly BASE = 'https://deep-translate1.p.rapidapi.com'
+  public static readonly BASE = 'https://deep-translate1.p.rapidapi.com';
   /**
    * To translate text, make a POST request and provide JSON in the
    * request body that identifies the language to translate to (target)
@@ -25,7 +24,7 @@ export class DEEP_TRANSLATE_API_ROUTES {
    * To detect the language of some text,
    * make a POST request and provide the appropriate request body.
    */
-  public static readonly DETECT = `${this.TRANSLATE}/detect`
+  public static readonly DETECT = `${this.TRANSLATE}/detect`;
   /**
    * You can discover the supported languages of this API by
    * sending an HTTP request using a URL of the following format
@@ -39,12 +38,11 @@ export class DEEP_TRANSLATE_API_ROUTES {
 })
 export class DeepTranslateApiService extends TranslateApiService {
 
-  private commonContext: HttpContext = new HttpContext().set(HTTP_RETRY_CONTEXT, {delay: 3000, count: 3});
   private commonHeaders: HttpHeaders = new HttpHeaders({
     'content-type': 'application/json',
     'X-RapidAPI-Host': '',
     'X-RapidAPI-Key': '',
-  })
+  });
 
   constructor(
     private httpClient: HttpClient,
@@ -61,26 +59,24 @@ export class DeepTranslateApiService extends TranslateApiService {
       DEEP_TRANSLATE_API_ROUTES.LANGUAGES,
       {
         headers: this.commonHeaders,
-        context: this.commonContext,
       },
     ).pipe(
       map(response => response.languages.map(lang => ({code: lang.language, name: lang.name}))),
-    )
+    );
   }
 
   public translate(text: string, target: string, source?: string): Observable<ITranslation> {
-    const body = { q: text, source, target };
+    const body = {q: text, source, target};
 
     return this.httpClient.post<IDeepTranslateTranslationResponse>(
       DEEP_TRANSLATE_API_ROUTES.TRANSLATE,
       body,
       {
         headers: this.commonHeaders,
-        context: this.commonContext,
       },
     ).pipe(
       map(response => ({text: response.data.translations.translatedText})),
-    )
+    );
   }
 
 }
