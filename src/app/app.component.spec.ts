@@ -1,30 +1,27 @@
-import { Component } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
+import { MockBuilder, MockedComponentFixture, MockRender, ngMocks } from 'ng-mocks';
 
+import { AppModule } from './app.module';
 import { AppComponent } from './app.component';
+import { TranslatorComponent } from './components/translator/translator.component';
 
-@Component({selector: 'tui-root', template: ''})
-class TuiRootStubComponent {}
-
-@Component({selector: 'mt-translator', template: ''})
-class TranslatorStubComponent {
-}
 
 describe('AppComponent', () => {
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [
-        AppComponent,
-        TuiRootStubComponent,
-        TranslatorStubComponent,
-      ],
-    }).compileComponents();
+  let fixture: MockedComponentFixture<AppComponent>;
+
+  beforeEach(() => MockBuilder(AppComponent, AppModule));
+
+  beforeEach(() => {
+    fixture = MockRender(AppComponent);
+    fixture.detectChanges();
   });
 
   it('should create the app', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
+    expect(fixture.point.componentInstance).toBeDefined();
+  });
+
+  it('should contain TranslatorComponent', () => {
+    const translatorComponent = ngMocks.findInstance(TranslatorComponent);
+    expect(translatorComponent).toEqual(jasmine.any(TranslatorComponent));
   });
 
 });

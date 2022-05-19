@@ -1,6 +1,6 @@
 import { HttpContextToken } from '@angular/common/http';
 
-interface IHttpRetryStrategy {
+export interface IHttpRetryStrategy {
   /** times to repeat */
   count: number;
   /** delay between requests */

@@ -6,6 +6,16 @@ import {
   BrowserDynamicTestingModule,
   platformBrowserDynamicTesting
 } from '@angular/platform-browser-dynamic/testing';
+import { MockInstance, ngMocks } from 'ng-mocks';
+
+ngMocks.autoSpy('jasmine');
+
+jasmine.getEnv().addReporter({
+  specDone: MockInstance.restore,
+  specStarted: MockInstance.remember,
+  suiteDone: MockInstance.restore,
+  suiteStarted: MockInstance.remember,
+});
 
 declare const require: {
   context(path: string, deep?: boolean, filter?: RegExp): {

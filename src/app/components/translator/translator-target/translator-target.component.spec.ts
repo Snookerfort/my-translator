@@ -1,117 +1,89 @@
-import { Component } from '@angular/core';
-import { By } from '@angular/platform-browser';
-import { TuiIslandModule } from '@taiga-ui/kit';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TuiAlertService, TuiNotification, TuiSvgModule } from '@taiga-ui/core';
+import { EMPTY } from 'rxjs';
+import createSpy = jasmine.createSpy;
+import { TuiAlertService, TuiNotification } from '@taiga-ui/core';
+import { MockBuilder, MockedComponentFixture, MockRender, ngMocks } from 'ng-mocks';
 
+import { AppModule } from '../../../app.module';
 import { NAVIGATOR } from '../../../tokens/navigator';
 import { TranslatorTargetComponent } from './translator-target.component';
-import { runOnPushChangeDetection } from '../../../../testing/change-detection-helpers';
-import { AlertingStubService, NavigatorStub } from '../testing/translator-testing-helpers';
 
 
 describe('TranslatorTargetComponent', () => {
-  let component: TranslatorTargetComponent;
-  let fixture: ComponentFixture<TranslatorTargetComponent>;
-  let tuiAlertService: TuiAlertService;
-  let navigator: NavigatorStub;
+  let fixture: MockedComponentFixture<TranslatorTargetComponent>;
+  let componentInstance: TranslatorTargetComponent;
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [
-        TuiSvgModule,
-        TuiIslandModule,
-      ],
-      declarations: [TranslatorTargetComponent],
-      providers: [
-        {provide: NAVIGATOR, useClass: NavigatorStub},
-        {provide: TuiAlertService, useClass: AlertingStubService},
-      ]
-    })
-      .compileComponents();
+  beforeEach(() => {
+    return MockBuilder(TranslatorTargetComponent, AppModule)
+      .mock(TuiAlertService, {
+        open: createSpy('open').and.returnValue(EMPTY)
+      })
+      .provide({
+        provide: NAVIGATOR,
+        useValue: {
+          clipboard: {
+            writeText: () => {
+            },
+          }
+        }
+      });
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(TranslatorTargetComponent);
-    component = fixture.componentInstance;
-    tuiAlertService = fixture.debugElement.injector.get(TuiAlertService);
-    navigator = fixture.debugElement.injector.get(NAVIGATOR);
-    fixture.detectChanges();
+    fixture = MockRender(TranslatorTargetComponent);
+    componentInstance = fixture.point.componentInstance;
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    expect(componentInstance).toBeDefined();
   });
 
   it('should display translation', () => {
     const translation = 'Some translation';
-    component.translation = translation;
-    runOnPushChangeDetection(fixture);
-    const translateParagraphDe = fixture.debugElement.query(By.css('.tui-island__paragraph'));
-    const translateParagraphEl: HTMLParagraphElement = translateParagraphDe.nativeElement;
-    expect(translateParagraphEl.textContent).toEqual(translation);
-  });
-
-  it('after success copying to clipboard tuiAlertService open method should be called', async () => {
-    component.translation = 'Some translation';
-    spyOn(navigator.clipboard, 'writeText')
-      .and
-      .returnValue(Promise.resolve(undefined));
-    await component.copy();
-    expect(tuiAlertService.open).toHaveBeenCalled();
-    expect(tuiAlertService.open).toHaveBeenCalledWith('Text has been copied!', {status: TuiNotification.Success});
-  });
-
-  it('after fail copying to clipboard tuiAlertService open method should be called', async () => {
-    component.translation = 'Some translation';
-    spyOn(navigator.clipboard, 'writeText')
-      .and
-      .returnValue(Promise.reject());
-    await component.copy();
-    expect(tuiAlertService.open).toHaveBeenCalled();
-    expect(tuiAlertService.open).toHaveBeenCalledWith('Text hasn\'t been copied!', {status: TuiNotification.Error});
-  });
-
-});
-
-describe('TranslatorTargetComponent inside a test host', () => {
-  let testHost: TestHostComponent;
-  let fixture: ComponentFixture<TestHostComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [
-        TuiSvgModule,
-        TuiIslandModule,
-      ],
-      declarations: [
-        TestHostComponent,
-        TranslatorTargetComponent,
-      ],
-    })
-      .compileComponents();
-  });
-
-  beforeEach(() => {
-    fixture = TestBed.createComponent(TestHostComponent);
-    testHost = fixture.componentInstance;
+    fixture.componentInstance.translation = translation;
     fixture.detectChanges();
+    const translateOutlet: HTMLParagraphElement = ngMocks.find('.tui-island__paragraph').nativeElement;
+    expect(translateOutlet.textContent).toEqual(translation);
+  });
+
+  describe('copy method', () => {
+    let navigator: Navigator;
+    let alertService: TuiAlertService;
+
+    beforeEach(() => {
+      componentInstance.translation = 'Some translation';
+      navigator = ngMocks.get(fixture.debugElement, NAVIGATOR);
+      alertService = ngMocks.get(fixture.debugElement, TuiAlertService);
+    });
+
+    it('after success copying to clipboard tuiAlertService open method should be called', async () => {
+      spyOn(navigator.clipboard, 'writeText')
+        .and
+        .returnValue(Promise.resolve(undefined));
+      await componentInstance.copy();
+      expect(alertService.open).toHaveBeenCalled();
+      expect(alertService.open).toHaveBeenCalledWith('Text has been copied!', {status: TuiNotification.Success});
+    });
+
+    it('after fail copying to clipboard tuiAlertService open method should be called', async () => {
+      spyOn(navigator.clipboard, 'writeText')
+        .and
+        .returnValue(Promise.reject());
+      await componentInstance.copy();
+      expect(alertService.open).toHaveBeenCalled();
+      expect(alertService.open).toHaveBeenCalledWith('Text hasn\'t been copied!', {status: TuiNotification.Error});
+    });
+
   });
 
   it('should display translation', () => {
-    const translateParagraphDe = fixture.debugElement.query(By.css('.tui-island__paragraph'));
-    const translateParagraphEl: HTMLParagraphElement = translateParagraphDe.nativeElement;
-    expect(translateParagraphEl.textContent).toEqual(testHost.translation);
+    const translation = 'Some translation';
+    ngMocks.flushTestBed();
+    MockRender(
+      '<mt-translator-target [translation]="outerTranslation"></mt-translator-target>',
+      {outerTranslation: translation},
+    );
+    const translateOutlet: HTMLParagraphElement = ngMocks.find('.tui-island__paragraph').nativeElement;
+    expect(translateOutlet.textContent).toEqual(translation);
   });
 
 });
-
-
-@Component({
-  template: `
-    <mt-translator-target [translation]="translation"></mt-translator-target>
-  `
-})
-class TestHostComponent {
-  translation = 'Some translation';
-}

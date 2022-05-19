@@ -1,133 +1,100 @@
-import { By } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
 import { TuiButtonModule } from '@taiga-ui/core';
 import { cold, getTestScheduler } from 'jasmine-marbles';
-import { Component, forwardRef, Input } from '@angular/core';
+import { MockComponents, MockProvider, ngMocks } from 'ng-mocks';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { TranslatorComponent } from './translator.component';
 import { TranslateApiService } from '../../services/translate-api.service';
 import { runOnPushChangeDetection } from '../../../testing/change-detection-helpers';
+import { TranslatorSourceComponent } from './translator-source/translator-source.component';
+import { TranslatorTargetComponent } from './translator-target/translator-target.component';
 
-@Component({selector: 'mt-translator-source', template: ''})
-class TranslatorSourceStubComponent implements ControlValueAccessor {
-  registerOnChange(fn: any): void {
-  }
-
-  registerOnTouched(fn: any): void {
-  }
-
-  writeValue(obj: any): void {
-  }
-}
-
-@Component({selector: 'mt-translator-target', template: ''})
-class TranslatorTargetStubComponent {
-  @Input()
-  translation = '';
-}
 
 describe('TranslatorComponent', () => {
-  let component: TranslatorComponent;
+
+  const translation = 'Some translation';
+  let componentInstance: TranslatorComponent;
   let fixture: ComponentFixture<TranslatorComponent>;
-  let translateSpy: jasmine.Spy;
-  let translation: string;
 
-  beforeEach(async () => {
-    translation = 'some translation';
-    const translateApiService = jasmine.createSpyObj('TranslateApiService', ['translate']);
-    const response = cold('-x|', {x: {text: translation}});
-    translateSpy = translateApiService.translate.and.returnValue(response);
-
-    await TestBed.configureTestingModule({
+  beforeEach(() => {
+    TestBed.configureTestingModule({
       declarations: [
         TranslatorComponent,
-        TranslatorSourceStubComponent,
-        TranslatorTargetStubComponent,
+        ...MockComponents(TranslatorTargetComponent, TranslatorSourceComponent),
       ],
-      imports: [FormsModule, TuiButtonModule],
+      imports: [
+        FormsModule,
+        TuiButtonModule,
+      ],
       providers: [
-        {provide: TranslateApiService, useValue: translateApiService},
+        MockProvider(TranslateApiService, {
+          translate: () => cold('-x|', {x: {text: translation}})
+        })
       ]
-    })
-      .overrideComponent(
-        TranslatorSourceStubComponent,
-        {
-          set: {
-            providers: [{
-              provide: NG_VALUE_ACCESSOR,
-              useExisting: forwardRef(() => TranslatorSourceStubComponent),
-              multi: true
-            }]
-          }
-        }
-      )
-      .compileComponents();
+    });
   });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(TranslatorComponent);
-    component = fixture.componentInstance;
+    componentInstance = fixture.componentInstance;
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    expect(componentInstance).toBeDefined();
   });
 
   it('loading should toggle when requesting translation', () => {
-    fixture.detectChanges();
-    component.sourceForm = {language: 'test', source: 'test'};
-    component.translate();
-    expect(component.loading)
+    componentInstance.sourceForm = {language: 'test', source: 'test'};
+    componentInstance.translate();
+    expect(componentInstance.loading)
       .withContext('before request translate')
-      .toBeTruthy();
+      .toBeTrue();
     getTestScheduler().flush();
-    expect(component.loading)
+    expect(componentInstance.loading)
       .withContext('after request translate')
       .toBeFalse();
   });
 
-  it('translate button should be disabled when form invalid', () => {
+  it('translate button should be disabled when form invalid', async () => {
     fixture.detectChanges();
-    const buttonDe = fixture.debugElement.query(By.css('button'));
+    const buttonDe = ngMocks.find('.translator-btn button');
     const translateBtn: HTMLButtonElement = buttonDe.nativeElement;
     expect(translateBtn.disabled)
       .withContext('button should be disabled on initialization')
       .toBeTrue();
-    component.sourceForm = {language: 'test', source: 'test'};
-    runOnPushChangeDetection(fixture);
+    componentInstance.sourceForm = {language: 'test', source: 'test'};
+    await runOnPushChangeDetection(fixture);
     expect(translateBtn.disabled)
       .withContext('button should be enable when all fields are filled in')
       .toBeFalse();
   });
 
   it('translation text should be received after request', () => {
-    fixture.detectChanges();
-    component.sourceForm = {language: 'test', source: 'test'};
-    component.translate();
-    expect(component.translation).toBe('');
+    componentInstance.sourceForm = {language: 'test', source: 'test'};
+    componentInstance.translate();
+    expect(componentInstance.translation).toBe('');
     getTestScheduler().flush();
-    expect(component.translation).toEqual(translation);
+    expect(componentInstance.translation).toEqual(translation);
   });
 
   it('form should be correct validate', () => {
-    fixture.detectChanges();
-    expect(component.sourceForm)
+    expect(componentInstance.sourceForm)
       .withContext('sourceForm should be null on initialization')
       .toEqual(null);
-    expect(component.sourceFormIsValid)
+    expect(componentInstance.sourceFormIsValid)
       .withContext('form should be invalid when empty')
       .toBeFalse();
-    component.sourceForm = {source: 'text', language: null};
-    expect(component.sourceFormIsValid)
+    componentInstance.sourceForm = {source: 'text', language: null};
+    expect(componentInstance.sourceFormIsValid)
       .withContext('form should be invalid when at least one field is empty')
       .toBeFalse();
-    component.sourceForm = {source: null, language: 'en'};
-    expect(component.sourceFormIsValid)
+    componentInstance.sourceForm = {source: null, language: 'en'};
+    expect(componentInstance.sourceFormIsValid)
       .withContext('form should be invalid when at least one field is empty')
       .toBeFalse();
-    component.sourceForm = {source: 'text', language: 'en'};
-    expect(component.sourceFormIsValid)
+    componentInstance.sourceForm = {source: 'text', language: 'en'};
+    expect(componentInstance.sourceFormIsValid)
       .withContext('form should be valid when all fields are filled in')
       .toBeTruthy();
   });

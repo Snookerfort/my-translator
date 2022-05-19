@@ -39,6 +39,7 @@ describe('DeepTranslateApiService', () => {
     const req = httpTestingController.expectOne(DEEP_TRANSLATE_API_ROUTES.LANGUAGES);
     checkRequestHeaders(req);
     req.flush(data);
+    httpTestingController.verify();
   })
 
   it('should call translate and return translation', () => {
@@ -55,6 +56,7 @@ describe('DeepTranslateApiService', () => {
     const req = httpTestingController.expectOne(DEEP_TRANSLATE_API_ROUTES.TRANSLATE);
     checkRequestHeaders(req);
     req.flush(data);
+    httpTestingController.verify();
   })
 
 });
